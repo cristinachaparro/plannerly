@@ -112,7 +112,7 @@ router.post(
   }
 );
 
-// GET "events/:id/edit" => renderizar edit-form.hbs para editar evento > ORGANISER ONLY !!!! DELETE USER FROM ATTENDANT PENDING
+// GET "events/:id/edit" => renderizar edit-form.hbs para editar evento > ORGANISER ONLY
 router.get("/:id/edit", isLoggedIn, isOrganiser, async (req, res, next) => {
   try {
     const { name, price, location, date, slots } = req.body;
@@ -183,10 +183,17 @@ router.post("/:id/fav", isLoggedIn, isUser, async (req, res, next) => {
   try {
     console.log("creating fav", req.params.id);
     const favEvent = await Event.findById(req.params.id);
+    const user = await User.findById(req.session.activeUser);
 
-    await User.findByIdAndUpdate(req.session.activeUser, {
-      $push: { favouriteEvents: favEvent },
-    });
+    if (user.favouriteEvents.indexOf(favEvent._id) === -1) {
+      await User.findByIdAndUpdate(req.session.activeUser, {
+        $push: { favouriteEvents: favEvent },
+      });
+    } else {
+      await User.findByIdAndUpdate(req.session.activeUser, {
+        $pull: { favouriteEvents: req.params.id },
+      });
+    }
 
     res.redirect(`/events/${req.params.id}/details`);
   } catch (error) {
