@@ -8,7 +8,6 @@ const router = express.Router();
 const Event = require("../models/Event.model");
 const User = require("../models/User.model");
 const uploader = require("../middlewares/cloudinary");
-const { restart } = require("nodemon");
 
 // GET "events/all" => renderizar all-events.hbs con la lista de todos los eventos
 router.get("/all", async (req, res, next) => {
